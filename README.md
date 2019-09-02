@@ -24,3 +24,10 @@ Control N° 3 del ramo computación paralela y distribuda
 ```$ ./dist/programa -f datos.txt -o salida.txt```
 
 donde datos.txt puede ser cualquier archivo txt con otro nombre que este colocado en la carpeta Control-03-Paralela
+
+
+Nota: Si se desea comprobar si se estan usando los procesadores en forma paralela instale y ejecute lo siguiente en una nueva terminal
+
+```$ sudo apt install htop```
+
+```$ htop```
