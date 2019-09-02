@@ -1,3 +1,4 @@
+//Autores: Israel Flores, Cristóbal Morales, Nicolas Alarcon
 #include "Matriz.h"
 #include <omp.h>
 Matriz::Matriz() {
@@ -14,38 +15,43 @@ Matriz::Matriz(const std::string& orig) {
         Matriz();
         std::string linea(orig.c_str());
         if (!linea.empty()) {
-            #pragma omp parallel
-                {
-                    linea.erase(std::remove(linea.begin(), linea.end(), '['), linea.end());
-                    linea.erase(std::remove(linea.begin(), linea.end(), ']'), linea.end());
-                    std::replace(linea.begin(), linea.end(), ';', ' ');
-                    std::vector<std::string> arreglo;
-                    std::stringstream ss(linea);
-                    std::string temp;
-                    while (ss >> temp) {
-                        arreglo.push_back(temp);
+            // Quitamos caracters innecesarios
+            linea.erase(std::remove(linea.begin(), linea.end(), '['), linea.end());
+            linea.erase(std::remove(linea.begin(), linea.end(), ']'), linea.end());
+
+            // Obtenemos un token
+            std::replace(linea.begin(), linea.end(), ';', ' ');
+
+#pragma omp parallel  //Empieza a paralelizar
+            {
+                std::vector<std::string>::size_type i=0;
+                std::vector<std::string> arreglo;
+                std::stringstream ss(linea);
+                std::string temp;
+                while (ss >> temp) {
+                    arreglo.push_back(temp);
+                }
+#pragma omp parallel for private(i)   //Usa la variable i en el for de modo privado
+                for (i = 0; i < LARGO; i++) {
+                    std::string fila = arreglo[i];
+                    std::replace(fila.begin(), fila.end(), ',', ' ');
+
+                    std::vector<std::string> columnas;
+                    std::stringstream sf(fila);
+                    std::string tmp;
+                    while (sf >> tmp) {
+                        columnas.push_back(tmp);
                     }
-                    std::vector<int>::size_type i;
-                    std::vector<int>::size_type j;
-            #pragma omp parallel for private(i)
-                    for (i = 0; i < LARGO; i++) {
-                        std::string fila = arreglo[i];
-                        std::replace(fila.begin(), fila.end(), ',', ' ');
-                        std::vector<std::string> columnas;
-                        std::stringstream sf(fila);
-                        std::string tmp;
-                        while (sf >> tmp) {
-                            columnas.push_back(tmp);  
-                        }
-                    for (j = 0; j < LARGO; j++) {
+
+                    for (int j = 0; j < LARGO; j++) {
                         std::string valor = columnas[j];
                         int numero = atoi(valor.c_str());
                         this->matriz[i][j] = numero;
-                        }
                     }
                 }
+            }
         }
-    }catch (...) {
+    } catch (...) {
         Matriz();
     }
 }
